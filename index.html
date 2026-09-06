@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AFTERHOURS. — A Social Night</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@600;700&family=Inter:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090b;
+      --card-bg: rgba(16, 16, 18, 0.92);
+      --card-border: rgba(255, 255, 255, 0.12);
+      --card-border-focus: rgba(255, 255, 255, 0.4);
+      --text-white: #f5f5f5;
+      --text-muted: #8e8e93;
+      --text-sub: #52525b;
+      --tape-bg: #cfc2ad;
+      --tape-text: #191919;
+      --pill-bg: #141416;
+      --pill-border: rgba(255, 255, 255, 0.1);
+      --pill-active-bg: #f5f5f5;
+      --pill-active-text: #09090b;
+      --font-display: 'Anton', -apple-system, sans-serif;
+      --font-hand: 'Caveat', cursive;
+      --font-mono: 'Space Mono', monospace;
+      --font-body: 'Inter', -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text-white);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      line-height: 1.5;
+      padding-bottom: 140px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Film grain overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.045'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* Subtle top flashlight vignette */
+    body::after {
+      content: "";
+      position: fixed;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      height: 650px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.045) 0%, transparent 65%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Top Sticky Status Bar */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background: rgba(9, 9, 11, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+    .top-bar-left {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-white);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .top-bar-left .live-dot {
+      width: 6px;
+      height: 6px;
+      background: #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    .progress-counter {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .progress-line-track {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .progress-line-fill {
+      height: 100%;
+      width: 0%;
+      background: #ffffff;
+      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .container {
+      max-width: 620px;
+      margin: 64px auto 0 auto;
+      padding: 0 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Poster Header Area */
+    .poster-hero {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 28px 24px 24px 24px;
+      margin-top: 14px;
+      margin-bottom: 28px;
+      background: radial-gradient(ellipse at 50% 10%, rgba(255, 255, 255, 0.04) 0%, rgba(14, 14, 16, 0.9) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .poster-meta-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .poster-manifesto {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      line-height: 1.6;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #b5b5ba;
+    }
+
+    .poster-location {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: #9a9aa2;
+      text-align: right;
+    }
+
+    .main-title-wrap {
+      text-align: center;
+      margin: 12px 0 10px 0;
+    }
+
+    .main-title {
+      font-family: var(--font-display);
+      font-size: clamp(3.8rem, 14vw, 5.6rem);
+      letter-spacing: 0.04em;
+      line-height: 0.88;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-shadow: 0 0 35px rgba(255, 255, 255, 0.15);
+    }
+
+    .main-subtitle {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.38em;
+      text-transform: uppercase;
+      color: #dedede;
+      margin-top: 8px;
+      font-weight: 700;
+    }
+
+    .pill-divider-text {
+      margin-top: 14px;
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #888894;
+      text-align: center;
+    }
+    .hero-scribbles-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+
+    .hand-scribble {
+      font-family: var(--font-hand);
+      font-size: 1.35rem;
+      color: #ececee;
+      line-height: 1.1;
+      transform: rotate(-2.5deg);
+    }
+
+    .hand-scribble.accent {
+      color: #ffffff;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 4px;
+      transform: rotate(2deg);
+      text-align: right;
+    }
+
+    /* Torn Paper Tape Tag from Poster */
+    .tape-badge {
+      display: inline-block;
+      background: var(--tape-bg);
+      color: var(--tape-text);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.75rem;
+      line-height: 1.3;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 8px 12px;
+      box-shadow: 2px 3px 12px rgba(0, 0, 0, 0.6);
+      transform: rotate(-1.5deg);
+      border-left: 2px dashed rgba(0, 0, 0, 0.25);
+      border-right: 2px dashed rgba(0, 0, 0, 0.25);
+    }
+
+    .stamp-pill {
+      border: 1.5px solid #d45252;
+      color: #ef7d7d;
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 100px;
+      display: inline-block;
+      transform: rotate(3deg);
+    }
+
+    .intro-paragraph {
+      margin: 22px 0 30px 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      padding: 0 4px;
+    }
+
+    .intro-paragraph strong {
+      color: var(--text-white);
+      font-weight: 600;
+    }
+    .section-break {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 36px 0 16px 0;
+    }
+
+    .section-break-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #94949e;
+      white-space: nowrap;
+    }
+
+    .section-break-line {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      width: 100%;
+    }
+
+    /* Cards */
+    .q-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+
+    .q-card:focus-within, .q-card.is-active {
+      border-color: var(--card-border-focus);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .q-num {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      color: #71717a;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .q-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+      line-height: 1.35;
+      margin-bottom: 6px;
+    }
+
+    .q-hint {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .options-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .options-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    @media (max-width: 500px) {
+      .options-grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .choice-pill {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--pill-bg);
+      border: 1px solid var(--pill-border);
+      padding: 13px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.92rem;
+      color: #dedede;
+      user-select: none;
+      transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.12s ease;
+    }
+
+    .choice-pill:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .choice-pill:active {
+      transform: scale(0.99);
+    }
+
+    .choice-pill input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .marker-dot {
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .marker-dot.square {
+      border-radius: 3px;
+    }
+
+    .marker-dot::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #000;
+      border-radius: 50%;
+      opacity: 0;
+      transform: scale(0.3);
+      transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .marker-dot.square::after {
+      border-radius: 1px;
+    }
+
+    .choice-pill.selected {
+      background: var(--pill-active-bg);
+      color: var(--pill-active-text);
+      border-color: #ffffff;
+      font-weight: 600;
+    }
+
+    .choice-pill.selected .marker-dot {
+      border-color: #000;
+      background: #000;
+    }
+
+    .choice-pill.selected .marker-dot::after {
+      background: #fff;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .choice-pill.disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+    .scale-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .scale-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--pill-bg);
+      border: 1px solid var(--pill-border);
+      padding: 14px 4px;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .scale-btn:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .scale-btn.selected {
+      background: #ffffff;
+      color: #000000;
+      border-color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .scale-legend {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* Textareas and Inputs */
+    textarea, input[type="text"] {
+      width: 100%;
+      background: #0e0e11;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      color: #ffffff;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      padding: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      resize: vertical;
+      min-height: 85px;
+    }
+
+    textarea:focus, input[type="text"]:focus {
+      border-color: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+    }
+    .identity-card {
+      background: #101014;
+      border: 1px dashed rgba(255, 255, 255, 0.18);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin: 32px 0 16px 0;
+      position: relative;
+    }
+
+    .identity-toggle-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+    }
+
+    .identity-text h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .identity-text p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .switch-track {
+      width: 46px;
+      height: 26px;
+      min-width: 46px;
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 100px;
+      position: relative;
+      transition: background-color 0.2s ease;
+    }
+
+    .switch-track::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: #ffffff;
+      border-radius: 50%;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .identity-card.revealed .switch-track {
+      background: #ffffff;
+    }
+
+    .identity-card.revealed .switch-track::after {
+      background: #09090b;
+      transform: translateX(20px);
+    }
+
+    #handleWrap {
+      display: none;
+      margin-top: 14px;
+    }
+
+    #handleWrap.visible {
+      display: block;
+    }
+    .fixed-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(9, 9, 11, 0.95) 40%, #09090b 100%);
+      padding: 24px 16px;
+      z-index: 90;
+      display: flex;
+      justify-content: center;
+    }
+
+    .btn-submit-main {
+      width: 100%;
+      max-width: 620px;
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      padding: 18px 24px;
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.12);
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn-submit-main:active {
+      transform: scale(0.98);
+    }
+
+    .btn-submit-main:hover {
+      opacity: 0.95;
+    }
+
+    /* Modal Sheet */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-sheet {
+      background: #111114;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 600px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 24px 20px 36px 20px;
+      display: flex;
+      flex-direction: column;
+      animation: slideSheetUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideSheetUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-head {
+      margin-bottom: 14px;
+    }
+
+    .modal-head h3 {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    .modal-head p {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .preview-code {
+      background: #08080a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: #cfcfe0;
+      max-height: 190px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .sheet-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-wa-launch {
+      background: #25d366;
+      color: #000000;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 15px;
+      border-radius: 10px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .btn-copy-fallback {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      cursor: pointer;
+    }
+
+    .btn-close-modal {
+      background: transparent;
+      color: #71717a;
+      border: none;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #ffffff;
+      color: #09090b;
+      padding: 8px 18px;
+      border-radius: 100px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="live-dot"></span> AFTERHOURS. // BLR
+    </div>
+    <div class="progress-counter" id="progText">0 OF 18 DONE</div>
+    <div class="progress-line-track">
+      <div class="progress-line-fill" id="progBar"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    
+    <!-- Poster Themed Header Box -->
+    <header class="poster-hero">
+      <div class="poster-meta-top">
+        <div class="poster-manifesto">
+          GOOD PEOPLE<br>
+          BETTER CONVERSATIONS<br>
+          LATE NIGHTS
+        </div>
+        <div class="poster-location">
+          BANGALORE<br>
+          EDITION 01
+        </div>
+      </div>
+
+      <div class="main-title-wrap">
+        <h1 class="main-title">AFTERHOURS.</h1>
+        <div class="main-subtitle">A SOCIAL NIGHT.</div>
+        <div class="pill-divider-text">DINNER &nbsp; | &nbsp; MUSIC &nbsp; | &nbsp; GAMES &nbsp; | &nbsp; PEOPLE</div>
+      </div>
+
+      <div class="hero-scribbles-row">
+        <div class="hand-scribble">More than<br>just a break.</div>
+      </div>
+    </header>
+
+    <p class="intro-paragraph">
+      Before spending anything, we're building this around <strong>real taste, honest limits, and actual headcount</strong>. 2 minutes. Anonymous by default. No filter.
+    </p>
+
+    <!-- FORM START -->
+    <form id="afterhoursSurvey">
+      <!-- CHAPTER 01 -->
+      <div class="section-break">
+        <span class="section-break-title">01 // ATTENDANCE & VIBE</span>
+        <div class="section-break-line"></div>
+      </div>
+
+      <!-- Q1 -->
+      <div class="q-card" data-q="q1">
+        <div class="q-num">Question 01</div>
+        <div class="q-title">Would you actually attend AFTERHOURS.?</div>
+        <div class="options-stack">
+          <label class="choice-pill"><input type="radio" name="q1" value="Definitely" required><span class="marker-dot"></span>Definitely</label>
+          <label class="choice-pill"><input type="radio" name="q1" value="Maybe"><span class="marker-dot"></span>Maybe</label>
+          <label class="choice-pill"><input type="radio" name="q1" value="Depends on date/location"><span class="marker-dot"></span>Depends on date/location</label>
+          <label class="choice-pill"><input type="radio" name="q1" value="Probably not"><span class="marker-dot"></span>Probably not</label>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="q-card" data-q="q2">
+        <div class="q-num">Question 02</div>
+        <div class="q-title">What kind of event sounds best?</div>
+        <div class="options-stack">
+          <label class="choice-pill"><input type="radio" name="q2" value="🍽️ Dinner + music" required><span class="marker-dot"></span>🍽️ Dinner + music</label>
+          <label class="choice-pill"><input type="radio" name="q2" value="🎧 DJ + party"><span class="marker-dot"></span>🎧 DJ + party</label>
+          <label class="choice-pill"><input type="radio" name="q2" value="🎲 Games + socializing"><span class="marker-dot"></span>🎲 Games + socializing</label>
+          <label class="choice-pill"><input type="radio" name="q2" value="🥂 Chill hangout"><span class="marker-dot"></span>🥂 Chill hangout</label>
+          <label class="choice-pill"><input type="radio" name="q2" value="🔥 Mix of everything"><span class="marker-dot"></span>🔥 Mix of everything</label>
+        </div>
+      </div>
+
+      <!-- Q13 -->
+      <div class="q-card" data-q="q13">
+        <div class="q-num">Question 03</div>
+        <div class="q-title">How many people would you potentially bring?</div>
+        <div class="options-grid-2">
+          <label class="choice-pill"><input type="radio" name="q13" value="Just me" required><span class="marker-dot"></span>Just me</label>
+          <label class="choice-pill"><input type="radio" name="q13" value="1 friend"><span class="marker-dot"></span>1 friend</label>
+          <label class="choice-pill"><input type="radio" name="q13" value="2 friends"><span class="marker-dot"></span>2 friends</label>
+          <label class="choice-pill"><input type="radio" name="q13" value="3+ friends"><span class="marker-dot"></span>3+ friends</label>
+        </div>
+      </div>
+
+      <!-- Q14 -->
+      <div class="q-card" data-q="q14">
+        <div class="q-num">Question 04</div>
+        <div class="q-title">How should invitations work?</div>
+        <div class="options-stack">
+          <label class="choice-pill"><input type="radio" name="q14" value="Strictly invite-only" required><span class="marker-dot"></span>Strictly invite-only</label>
+          <label class="choice-pill"><input type="radio" name="q14" value="Invite + approved plus-one"><span class="marker-dot"></span>Invite + approved plus-one</label>
+          <label class="choice-pill"><input type="radio" name="q14" value="Everyone can bring friends"><span class="marker-dot"></span>Everyone can bring friends</label>
+          <label class="choice-pill"><input type="radio" name="q14" value="Don't care"><span class="marker-dot"></span>Don't care</label>
+        </div>
+      </div>
+      <!-- CHAPTER 02 -->
+      <div class="section-break">
+        <span class="section-break-title">02 // THE HONEST BUDGET</span>
+        <div class="section-break-line"></div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="q-card" data-q="q3">
+        <div class="q-num">Question 05</div>
+        <div class="q-title">What's a comfortable budget per person?</div>
+        <div class="q-hint">Be real. Don't say ₹1,500 if you'd actually hesitate at ₹900.</div>
+        <div class="options-stack">
+          <label class="choice-pill"><input type="radio" name="q3" value="₹500–₹700" required><span class="marker-dot"></span>₹500 – ₹700</label>
+          <label class="choice-pill"><input type="radio" name="q3" value="₹700–₹900"><span class="marker-dot"></span>₹700 – ₹900</label>
+          <label class="choice-pill"><input type="radio" name="q3" value="₹900–₹1,100"><span class="marker-dot"></span>₹900 – ₹1,100</label>
+          <label class="choice-pill"><input type="radio" name="q3" value="₹1,100–₹1,500"><span class="marker-dot"></span>₹1,100 – ₹1,500</label>
+          <label class="choice-pill"><input type="radio" name="q3" value="₹1,500+"><span class="marker-dot"></span>₹1,500+</label>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="q-card" data-q="q4">
+        <div class="q-num">Question 06</div>
+        <div class="q-title">What should the budget mainly cover?</div>
+        <div class="q-hint">Select all that apply.</div>
+        <div class="options-grid-2">
+          <label class="choice-pill"><input type="checkbox" name="q4" value="Food"><span class="marker-dot square"></span>Food</label>
+          <label class="choice-pill"><input type="checkbox" name="q4" value="Venue"><span class="marker-dot square"></span>Venue</label>
+          <label class="choice-pill"><input type="checkbox" name="q4" value="DJ"><span class="marker-dot square"></span>DJ</label>
+          <label class="choice-pill"><input type="checkbox" name="q4" value="Decorations"><span class="marker-dot square"></span>Decorations</label>
+          <label class="choice-pill"><input type="checkbox" name="q4" value="Photography"><span class="marker-dot square"></span>Photography</label>
+          <label class="choice-pill"><input type="checkbox" name="q4" value="Games/activities"><span class="marker-dot square"></span>Games/activities</label>
+          <label class="choice-pill"><input type="checkbox" name="q4" value="Welcome drinks"><span class="marker-dot square"></span>Welcome drinks</label>
+          <label class="choice-pill"><input type="checkbox" name="q4" value="Dessert/cake"><span class="marker-dot square"></span>Dessert / cake</label>
+        </div>
+      </div>
+      <!-- CHAPTER 03 -->
+      <div class="section-break">
+        <span class="section-break-title">03 // MUSIC & DINNER</span>
+        <div class="section-break-line"></div>
+      </div>
+
+      <!-- Q5 -->
+      <div class="q-card" data-q="q5">
+        <div class="q-num">Question 07</div>
+        <div class="q-title">Should we get a proper DJ?</div>
+        <div class="options-stack">
+          <label class="choice-pill"><input type="radio" name="q5" value="Yes, definitely" required><span class="marker-dot"></span>Yes, definitely</label>
+          <label class="choice-pill"><input type="radio" name="q5" value="A DJ would be nice"><span class="marker-dot"></span>A DJ would be nice</label>
+          <label class="choice-pill"><input type="radio" name="q5" value="Good playlist + speakers is enough"><span class="marker-dot"></span>Good playlist + speakers is enough</label>
+          <label class="choice-pill"><input type="radio" name="q5" value="Don't care"><span class="marker-dot"></span>Don't care</label>
+        </div>
+      </div>
+
+      <!-- Q6 -->
+      <div class="q-card" data-q="q6">
+        <div class="q-num">Question 08</div>
+        <div class="q-title">How important is music to you?</div>
+        <div class="q-hint">1: Whatever is in background · 5: Core Boiler Room energy</div>
+        <div class="scale-row" id="musicScaleWrap">
+          <div class="scale-btn" data-val="1">1</div>
+          <div class="scale-btn" data-val="2">2</div>
+          <div class="scale-btn" data-val="3">3</div>
+          <div class="scale-btn" data-val="4">4</div>
+          <div class="scale-btn" data-val="5">5</div>
+        </div>
+        <input type="hidden" name="q6" id="q6Input" value="">
+        <div class="scale-legend">
+          <span>1: Don't care</span>
+          <span>3: Important</span>
+          <span>5: Proper Party</span>
+        </div>
+      </div>
+
+      <!-- Q7 -->
+      <div class="q-card" data-q="q7">
+        <div class="q-num">Question 09</div>
+        <div class="q-title">What food setup would you prefer?</div>
+        <div class="options-stack">
+          <label class="choice-pill"><input type="radio" name="q7" value="🍗 Buffet" required><span class="marker-dot"></span>🍗 Buffet</label>
+          <label class="choice-pill"><input type="radio" name="q7" value="🍕 Pizza / burgers / finger food"><span class="marker-dot"></span>🍕 Pizza / burgers / finger food</label>
+          <label class="choice-pill"><input type="radio" name="q7" value="🍛 Indian dinner"><span class="marker-dot"></span>🍛 Indian dinner</label>
+          <label class="choice-pill"><input type="radio" name="q7" value="🍽️ Proper sit-down dinner"><span class="marker-dot"></span>🍽️ Proper sit-down dinner</label>
+          <label class="choice-pill"><input type="radio" name="q7" value="Mix of starters + main course"><span class="marker-dot"></span>Mix of starters + main course</label>
+        </div>
+      </div>
+
+      <!-- Q8 -->
+      <div class="q-card" data-q="q8">
+        <div class="q-num">Question 10</div>
+        <div class="q-title">Veg / Non-veg?</div>
+        <div class="options-stack">
+          <label class="choice-pill"><input type="radio" name="q8" value="Vegetarian" required><span class="marker-dot"></span>Vegetarian</label>
+          <label class="choice-pill"><input type="radio" name="q8" value="Non-vegetarian"><span class="marker-dot"></span>Non-vegetarian</label>
+          <label class="choice-pill"><input type="radio" name="q8" value="Both options should be available"><span class="marker-dot"></span>Both options should be available</label>
+        </div>
+      </div>
+      <!-- CHAPTER 04 -->
+      <div class="section-break">
+        <span class="section-break-title">04 // VENUE & LOGISTICS</span>
+        <div class="section-break-line"></div>
+      </div>
+
+      <!-- Q9 -->
+      <div class="q-card" data-q="q9">
+        <div class="q-num">Question 11</div>
+        <div class="q-title">What kind of venue?</div>
+        <div class="options-grid-2">
+          <label class="choice-pill"><input type="radio" name="q9" value="🏠 Private villa" required><span class="marker-dot"></span>🏠 Private villa</label>
+          <label class="choice-pill"><input type="radio" name="q9" value="🌃 Rooftop"><span class="marker-dot"></span>🌃 Rooftop</label>
+          <label class="choice-pill"><input type="radio" name="q9" value="🍽️ Restaurant/private dining"><span class="marker-dot"></span>🍽️ Private dining</label>
+          <label class="choice-pill"><input type="radio" name="q9" value="🏢 Event space"><span class="marker-dot"></span>🏢 Event space</label>
+          <label class="choice-pill"><input type="radio" name="q9" value="🌳 Outdoor/farmhouse"><span class="marker-dot"></span>🌳 Farmhouse</label>
+          <label class="choice-pill"><input type="radio" name="q9" value="Don't care"><span class="marker-dot"></span>Don't care</label>
+        </div>
+      </div>
+
+      <!-- Q10 -->
+      <div class="q-card" data-q="q10">
+        <div class="q-num">Question 12</div>
+        <div class="q-title">How far are you willing to travel?</div>
+        <div class="options-stack">
+          <label class="choice-pill"><input type="radio" name="q10" value="Within ~5 km" required><span class="marker-dot"></span>Within ~5 km</label>
+          <label class="choice-pill"><input type="radio" name="q10" value="5–10 km"><span class="marker-dot"></span>5–10 km</label>
+          <label class="choice-pill"><input type="radio" name="q10" value="10–20 km"><span class="marker-dot"></span>10–20 km</label>
+          <label class="choice-pill"><input type="radio" name="q10" value="Anywhere in Bangalore if worth it"><span class="marker-dot"></span>Anywhere in Bangalore if the event is worth it</label>
+        </div>
+      </div>
+
+      <!-- Q11 -->
+      <div class="q-card" data-q="q11">
+        <div class="q-num">Question 13</div>
+        <div class="q-title">What time would you prefer?</div>
+        <div class="options-grid-2">
+          <label class="choice-pill"><input type="radio" name="q11" value="5–10 PM" required><span class="marker-dot"></span>5–10 PM</label>
+          <label class="choice-pill"><input type="radio" name="q11" value="6–11 PM"><span class="marker-dot"></span>6–11 PM</label>
+          <label class="choice-pill"><input type="radio" name="q11" value="7–12 PM"><span class="marker-dot"></span>7–12 PM</label>
+          <label class="choice-pill"><input type="radio" name="q11" value="8 PM onwards"><span class="marker-dot"></span>8 PM onwards</label>
+          <label class="choice-pill"><input type="radio" name="q11" value="Don't care"><span class="marker-dot"></span>Don't care</label>
+        </div>
+      </div>
+      <!-- CHAPTER 05 -->
+      <div class="section-break">
+        <span class="section-break-title">05 // STANDARDS & DEALBREAKERS</span>
+        <div class="section-break-line"></div>
+      </div>
+
+      <!-- Q12 (Strict 3 Max) -->
+      <div class="q-card" data-q="q12">
+        <div class="q-num">Question 14</div>
+        <div class="q-title">What would make you actually want to come?</div>
+        <div class="q-hint" id="q12CounterLabel">Select up to 3 (0 of 3 picked)</div>
+        <div class="options-grid-2" id="q12Grid">
+          <label class="choice-pill"><input type="checkbox" name="q12" value="Good crowd"><span class="marker-dot square"></span>Good crowd</label>
+          <label class="choice-pill"><input type="checkbox" name="q12" value="Good food"><span class="marker-dot square"></span>Good food</label>
+          <label class="choice-pill"><input type="checkbox" name="q12" value="DJ/music"><span class="marker-dot square"></span>DJ/music</label>
+          <label class="choice-pill"><input type="checkbox" name="q12" value="Interesting people"><span class="marker-dot square"></span>Interesting people</label>
+          <label class="choice-pill"><input type="checkbox" name="q12" value="Games/activities"><span class="marker-dot square"></span>Games/activities</label>
+          <label class="choice-pill"><input type="checkbox" name="q12" value="Nice venue"><span class="marker-dot square"></span>Nice venue</label>
+          <label class="choice-pill"><input type="checkbox" name="q12" value="Photos/content"><span class="marker-dot square"></span>Photos/content</label>
+          <label class="choice-pill"><input type="checkbox" name="q12" value="Affordable price"><span class="marker-dot square"></span>Affordable price</label>
+          <label class="choice-pill"><input type="checkbox" name="q12" value="Dress code/theme"><span class="marker-dot square"></span>Dress code/theme</label>
+          <label class="choice-pill"><input type="checkbox" name="q12" value="Overall vibe"><span class="marker-dot square"></span>Overall vibe</label>
+        </div>
+      </div>
+
+      <!-- Q15 -->
+      <div class="q-card" data-q="q15">
+        <div class="q-num">Question 15</div>
+        <div class="q-title">How important is having a comfortable/safe environment?</div>
+        <div class="options-stack">
+          <label class="choice-pill"><input type="radio" name="q15" value="Very important" required><span class="marker-dot"></span>Very important</label>
+          <label class="choice-pill"><input type="radio" name="q15" value="Important"><span class="marker-dot"></span>Important</label>
+          <label class="choice-pill"><input type="radio" name="q15" value="Doesn't matter much"><span class="marker-dot"></span>Doesn't matter much</label>
+        </div>
+      </div>
+
+      <!-- Q16 -->
+      <div class="q-card" data-q="q16">
+        <div class="q-num">Question 16</div>
+        <div class="q-title">Anything you'd NOT want at AFTERHOURS.?</div>
+        <div class="q-hint">Dealbreakers, awkward vibes, bad crowds, songs you hate...</div>
+        <textarea name="q16" placeholder="Be as blunt as possible..."></textarea>
+      </div>
+
+      <!-- Q17 -->
+      <div class="q-card" data-q="q17">
+        <div class="q-num">Question 17</div>
+        <div class="q-title">What is ONE thing that would make AFTERHOURS. genuinely memorable?</div>
+        <div class="q-hint">One specific idea or detail that stands out...</div>
+        <textarea name="q17" placeholder="Specific icebreaker, unexpected drink, Polaroid corner, lighting..."></textarea>
+      </div>
+
+      <!-- Q18 -->
+      <div class="q-card" data-q="q18">
+        <div class="q-num">Question 18</div>
+        <div class="q-title">Any other suggestions?</div>
+        <textarea name="q18" placeholder="Open floor. Anything goes..."></textarea>
+      </div>
+
+      <!-- Identity Switch (Anonymous default) -->
+      <div class="identity-card" id="idCard">
+        <div class="identity-toggle-head" id="idToggleBtn">
+          <div class="identity-text">
+            <h4 id="idStatusTitle">100% Anonymous Response</h4>
+            <p>Tap switch if you want to attach your name or Instagram handle</p>
+          </div>
+          <div class="switch-track"></div>
+        </div>
+        <div id="handleWrap">
+          <input type="text" id="handleInput" placeholder="Name or @handle (optional)">
+        </div>
+      </div>
+
+      <!-- Bottom Floating Submit Bar -->
+      <div class="fixed-footer">
+        <button type="submit" class="btn-submit-main">
+          <span>Submit & Send via WhatsApp</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+    </form>
+  </div>
+  <!-- Verification & Dispatch Sheet -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-sheet">
+      <div class="modal-head">
+        <h3>DISPATCH TO ORGANIZER</h3>
+        <p>Target Number: +91 8904198424</p>
+      </div>
+
+      <div class="preview-code" id="previewMsgBox"></div>
+
+      <div class="sheet-btns">
+        <button type="button" class="btn-wa-launch" id="btnOpenWhatsApp">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 2C6.511 2 2.016 6.476 2.016 11.977c0 1.761.458 3.484 1.328 5.002L2 22l5.176-1.341a9.92 9.92 0 0 0 4.855 1.258h.004c5.518 0 10.014-4.476 10.014-9.978A9.919 9.919 0 0 0 12.031 2zm0 18.232c-1.503 0-2.977-.4-4.264-1.161l-.306-.182-3.167.821.846-3.058-.2-.314a8.152 8.152 0 0 1-1.259-4.361c0-4.526 3.7-8.207 8.25-8.207a8.21 8.21 0 0 1 8.243 8.207c0 4.526-3.7 8.207-8.363 8.255z"/></svg>
+          Open WhatsApp Now
+        </button>
+        <button type="button" class="btn-copy-fallback" id="btnCopyText">
+          📋 Copy Formatted Text to Clipboard
+        </button>
+        <button type="button" class="btn-close-modal" id="btnCloseModal">
+          ← Back to Edit Answers
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toastNotice"></div>
+  <script>
+    const form = document.getElementById('afterhoursSurvey');
+    const progBar = document.getElementById('progBar');
+    const progText = document.getElementById('progText');
+    const musicScaleBtns = document.querySelectorAll('.scale-btn');
+    const q6Hidden = document.getElementById('q6Input');
+    const q12Boxes = document.querySelectorAll('input[name="q12"]');
+    const q12CounterLabel = document.getElementById('q12CounterLabel');
+    const idCard = document.getElementById('idCard');
+    const idToggleBtn = document.getElementById('idToggleBtn');
+    const idStatusTitle = document.getElementById('idStatusTitle');
+    const handleWrap = document.getElementById('handleWrap');
+    const handleInput = document.getElementById('handleInput');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const previewMsgBox = document.getElementById('previewMsgBox');
+    const btnOpenWhatsApp = document.getElementById('btnOpenWhatsApp');
+    const btnCopyText = document.getElementById('btnCopyText');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const toastNotice = document.getElementById('toastNotice');
+
+    const ORGANIZER_PHONE = "918904198424";
+    let formattedSurveyPayload = "";
+    let isAnonymous = true;
+
+    function triggerToast(text) {
+      toastNotice.innerText = text;
+      toastNotice.classList.add('show');
+      setTimeout(() => {
+        toastNotice.classList.remove('show');
+      }, 2400);
+    }
+
+    // Toggle pill active appearance
+    function refreshPillStates() {
+      document.querySelectorAll('.choice-pill').forEach(pill => {
+        const input = pill.querySelector('input');
+        if (input && input.checked) {
+          pill.classList.add('selected');
+        } else if (input) {
+          pill.classList.remove('selected');
+        }
+      });
+      updateProgress();
+    }
+
+    document.addEventListener('change', (e) => {
+      if (e.target.matches('input[type="radio"], input[type="checkbox"]')) {
+        refreshPillStates();
+      }
+    });
+
+    // Rating (Q6) 1-5
+    musicScaleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        musicScaleBtns.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        q6Hidden.value = btn.getAttribute('data-val');
+        updateProgress();
+      });
+    });
+
+    // Strict 3-pick limit on Q12
+    function enforceQ12Limit() {
+      const selected = Array.from(q12Boxes).filter(b => b.checked);
+      const count = selected.length;
+      q12CounterLabel.innerText = `Select up to 3 (${count} of 3 picked)`;
+
+      if (count >= 3) {
+        q12Boxes.forEach(b => {
+          if (!b.checked) {
+            b.closest('.choice-pill').classList.add('disabled');
+            b.disabled = true;
+          }
+        });
+      } else {
+        q12Boxes.forEach(b => {
+          b.closest('.choice-pill').classList.remove('disabled');
+          b.disabled = false;
+        });
+      }
+    }
+
+    q12Boxes.forEach(box => {
+      box.addEventListener('change', enforceQ12Limit);
+    });
+
+    // Anonymous toggle
+    idToggleBtn.addEventListener('click', () => {
+      isAnonymous = !isAnonymous;
+      if (!isAnonymous) {
+        idCard.classList.add('revealed');
+        handleWrap.classList.add('visible');
+        idStatusTitle.innerText = "Identity Attached";
+        handleInput.focus();
+      } else {
+        idCard.classList.remove('revealed');
+        handleWrap.classList.remove('visible');
+        idStatusTitle.innerText = "100% Anonymous Response";
+        handleInput.value = "";
+      }
+    });
+
+    // Track total progress
+    const allFieldNames = ['q1', 'q2', 'q13', 'q14', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'q15', 'q16', 'q17', 'q18'];
+
+    function updateProgress() {
+      let done = 0;
+
+      // Single select radios
+      ['q1', 'q2', 'q13', 'q14', 'q3', 'q5', 'q7', 'q8', 'q9', 'q10', 'q11', 'q15'].forEach(name => {
+        if (document.querySelector(`input[name="${name}"]:checked`)) done++;
+      });
+
+      // Checkbox groups
+      if (document.querySelector('input[name="q4"]:checked')) done++;
+      if (document.querySelector('input[name="q12"]:checked')) done++;
+
+      // Music scale Q6
+      if (q6Hidden.value) done++;
+
+      // Textareas
+      ['q16', 'q17', 'q18'].forEach(name => {
+        const val = document.querySelector(`textarea[name="${name}"]`).value.trim();
+        if (val.length > 0) done++;
+      });
+
+      const total = allFieldNames.length;
+      const pct = Math.min(100, Math.round((done / total) * 100));
+      progBar.style.width = pct + '%';
+      progText.innerText = `${done} OF ${total} DONE`;
+    }
+
+    document.querySelectorAll('textarea').forEach(t => {
+      t.addEventListener('input', updateProgress);
+    });
+
+    // Form Submit
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      if (!q6Hidden.value) {
+        triggerToast("Please tap a rating (1-5) for music priority");
+        document.querySelector('[data-q="q6"]').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      const getRadio = (name) => {
+        const el = form.querySelector(`input[name="${name}"]:checked`);
+        return el ? el.value : '—';
+      };
+
+      const getMulti = (name) => {
+        const list = Array.from(form.querySelectorAll(`input[name="${name}"]:checked`));
+        return list.length > 0 ? list.map(c => c.value).join(', ') : 'None selected';
+      };
+
+      const getText = (name) => {
+        const val = form.querySelector(`textarea[name="${name}"]`).value.trim();
+        return val ? val : 'None';
+      };
+
+      const responder = isAnonymous || !handleInput.value.trim() 
+        ? '🕶️ Anonymous Guest' 
+        : `👤 ${handleInput.value.trim()}`;
+
+      let text = `*AFTERHOURS. // CROWD SURVEY 🖤*\n`;
+      text += `_A Social Night — Bangalore_\n`;
+      text += `*Respondent:* ${responder}\n`;
+      text += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+      text += `*01. ATTENDANCE & VIBE*\n`;
+      text += `• Would attend: ${getRadio('q1')}\n`;
+      text += `• Format: ${getRadio('q2')}\n`;
+      text += `• Group size: ${getRadio('q13')}\n`;
+      text += `• Invites: ${getRadio('q14')}\n\n`;
+
+      text += `*02. BUDGET & VALUE*\n`;
+      text += `• Comfortable spend: ${getRadio('q3')}\n`;
+      text += `• Budget should cover: ${getMulti('q4')}\n\n`;
+
+      text += `*03. MUSIC & FOOD*\n`;
+      text += `• Need DJ: ${getRadio('q5')}\n`;
+      text += `• Music Priority (1-5): ${q6Hidden.value}/5\n`;
+      text += `• Food setup: ${getRadio('q7')}\n`;
+      text += `• Diet: ${getRadio('q8')}\n\n`;
+
+      text += `*04. VENUE & LOGISTICS*\n`;
+      text += `• Venue choice: ${getRadio('q9')}\n`;
+      text += `• Max travel: ${getRadio('q10')}\n`;
+      text += `• Time slot: ${getRadio('q11')}\n\n`;
+
+      text += `*05. STANDARDS & DEALBREAKERS*\n`;
+      text += `• Core pulls: ${getMulti('q12')}\n`;
+      text += `• Safety/comfort: ${getRadio('q15')}\n\n`;
+
+      text += `*06. RAW THOUGHTS*\n`;
+      text += `🚫 *Dealbreakers (NOT wanted):*\n"${getText('q16')}"\n\n`;
+      text += `✨ *Memorable idea:*\n"${getText('q17')}"\n\n`;
+      text += `💬 *Other suggestions:*\n"${getText('q18')}"`;
+
+      formattedSurveyPayload = text;
+      previewMsgBox.innerText = text;
+      modalOverlay.classList.add('open');
+    });
+
+    // Launch WhatsApp directly
+    btnOpenWhatsApp.addEventListener('click', () => {
+      const url = `https://wa.me/${ORGANIZER_PHONE}?text=${encodeURIComponent(formattedSurveyPayload)}`;
+      window.open(url, '_blank');
+    });
+
+    // Safe clipboard copy fallback
+    btnCopyText.addEventListener('click', () => {
+      const el = document.createElement("textarea");
+      el.value = formattedSurveyPayload;
+      document.body.appendChild(el);
+      el.select();
+      try {
+        const ok = document.execCommand('copy');
+        if (ok) {
+          triggerToast("Copied to clipboard! Send it on WhatsApp.");
+        } else {
+          triggerToast("Manual copy needed.");
+        }
+      } catch (err) {
+        triggerToast("Manual copy needed.");
+      }
+      document.body.removeChild(el);
+    });
+
+    btnCloseModal.addEventListener('click', () => {
+      modalOverlay.classList.remove('open');
+    });
+
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) {
+        modalOverlay.classList.remove('open');
+      }
+    });
+
+    // Initial state
+    refreshPillStates();
+  </script>
+</body>
+</html>
