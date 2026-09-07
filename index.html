@@ -507,80 +507,16 @@
       resize: vertical;
       min-height: 85px;
     }
+    
+    input[type="text"] {
+      min-height: unset;
+    }
 
     textarea:focus, input[type="text"]:focus {
       border-color: rgba(255, 255, 255, 0.5);
       box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
     }
-    .identity-card {
-      background: #101014;
-      border: 1px dashed rgba(255, 255, 255, 0.18);
-      border-radius: 10px;
-      padding: 18px 20px;
-      margin: 32px 0 16px 0;
-      position: relative;
-    }
-
-    .identity-toggle-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      cursor: pointer;
-    }
-
-    .identity-text h4 {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .identity-text p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    .switch-track {
-      width: 46px;
-      height: 26px;
-      min-width: 46px;
-      background: rgba(255, 255, 255, 0.16);
-      border-radius: 100px;
-      position: relative;
-      transition: background-color 0.2s ease;
-    }
-
-    .switch-track::after {
-      content: '';
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 20px;
-      height: 20px;
-      background: #ffffff;
-      border-radius: 50%;
-      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .identity-card.revealed .switch-track {
-      background: #ffffff;
-    }
-
-    .identity-card.revealed .switch-track::after {
-      background: #09090b;
-      transform: translateX(20px);
-    }
-
-    #handleWrap {
-      display: none;
-      margin-top: 14px;
-    }
-
-    #handleWrap.visible {
-      display: block;
-    }
-
+    
     /* Credit Footer */
     .credit-footer {
       text-align: center;
@@ -821,7 +757,7 @@
     </header>
 
     <p class="intro-paragraph">
-      Before spending anything, we're building this around <strong>real taste, honest limits, and actual headcount</strong>. 2 minutes. Anonymous by default. No filter.
+      Before spending anything, we're building this around <strong>real taste, honest limits, and actual headcount</strong>. 2 minutes. No filter.
     </p>
 
     <!-- FORM START -->
@@ -1080,18 +1016,11 @@
         <textarea name="q18" placeholder="Open floor. Anything goes..."></textarea>
       </div>
 
-      <!-- Identity Switch (Anonymous default) -->
-      <div class="identity-card" id="idCard">
-        <div class="identity-toggle-head" id="idToggleBtn">
-          <div class="identity-text">
-            <h4 id="idStatusTitle">100% Anonymous Response</h4>
-            <p>Tap switch if you want to attach your name or Instagram handle</p>
-          </div>
-          <div class="switch-track"></div>
-        </div>
-        <div id="handleWrap">
-          <input type="text" id="handleInput" placeholder="Name or @handle (optional)">
-        </div>
+      <!-- Required Identity Input -->
+      <div class="q-card">
+        <div class="q-num">Identity</div>
+        <div class="q-title">Your Name or Instagram Handle</div>
+        <input type="text" id="handleInput" placeholder="Name or @handle" required>
       </div>
 
       <!-- Bottom Floating Submit Bar -->
@@ -1138,10 +1067,6 @@
     const q6Hidden = document.getElementById('q6Input');
     const q12Boxes = document.querySelectorAll('input[name="q12"]');
     const q12CounterLabel = document.getElementById('q12CounterLabel');
-    const idCard = document.getElementById('idCard');
-    const idToggleBtn = document.getElementById('idToggleBtn');
-    const idStatusTitle = document.getElementById('idStatusTitle');
-    const handleWrap = document.getElementById('handleWrap');
     const handleInput = document.getElementById('handleInput');
     const modalOverlay = document.getElementById('modalOverlay');
     const previewMsgBox = document.getElementById('previewMsgBox');
@@ -1152,7 +1077,6 @@
 
     const ORGANIZER_PHONE = "918904198424";
     let formattedSurveyPayload = "";
-    let isAnonymous = true;
 
     function triggerToast(text) {
       toastNotice.innerText = text;
@@ -1216,22 +1140,6 @@
       box.addEventListener('change', enforceQ12Limit);
     });
 
-    // Anonymous toggle
-    idToggleBtn.addEventListener('click', () => {
-      isAnonymous = !isAnonymous;
-      if (!isAnonymous) {
-        idCard.classList.add('revealed');
-        handleWrap.classList.add('visible');
-        idStatusTitle.innerText = "Identity Attached";
-        handleInput.focus();
-      } else {
-        idCard.classList.remove('revealed');
-        handleWrap.classList.remove('visible');
-        idStatusTitle.innerText = "100% Anonymous Response";
-        handleInput.value = "";
-      }
-    });
-
     // Track total progress
     const allFieldNames = ['q1', 'q2', 'q13', 'q14', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11', 'q12', 'q15', 'q16', 'q17', 'q18'];
 
@@ -1291,9 +1199,7 @@
         return val ? val : 'None';
       };
 
-      const responder = isAnonymous || !handleInput.value.trim() 
-        ? '🕶️ Anonymous Guest' 
-        : `👤 ${handleInput.value.trim()}`;
+      const responder = `👤 ${handleInput.value.trim()}`;
 
       let text = `*AFTERHOURS. // CROWD SURVEY 🖤*\n`;
       text += `_A Social Night — Bangalore_\n`;
